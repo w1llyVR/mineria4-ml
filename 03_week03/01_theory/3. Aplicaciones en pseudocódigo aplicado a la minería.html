@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notebook 3: Integración - De Pseudocódigo a Python</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #9b59b6;
+            --dark: #1a1a2e;
+            --light: #ecf0f1;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --code-bg: #282c34;
+            --pseudo-bg: #2d3436;
+            --python-bg: #1e272e;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--primary);
+            background: var(--gradient-1);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--info) 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '⚡';
+            position: absolute;
+            font-size: 300px;
+            opacity: 0.05;
+            top: -100px;
+            right: -100px;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(5deg); }
+            50% { transform: translateY(10px) rotate(-5deg); }
+            75% { transform: translateY(-10px) rotate(3deg); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        nav {
+            background: var(--dark);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid transparent;
+        }
+
+        nav a:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            border-color: white;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .module {
+            margin-bottom: 3rem;
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100px;
+            height: 3px;
+            background: var(--info);
+            transition: width 0.3s ease;
+        }
+
+        h2:hover::after {
+            width: 200px;
+        }
+
+        h3 {
+            color: var(--secondary);
+            font-size: 1.5rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .theory-box {
+            background: linear-gradient(135deg, #f6f9fc 0%, #e9f3ff 100%);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin: 1.5rem 0;
+            border-left: 5px solid var(--secondary);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .theory-box p {
+            margin-bottom: 1rem;
+            text-align: justify;
+            line-height: 1.8;
+        }
+
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .code-panel {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .code-panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .panel-header {
+            padding: 1rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .pseudo-panel .panel-header {
+            background: linear-gradient(135deg, #ee5a24 0%, #f79f1f 100%);
+        }
+
+        .python-panel .panel-header {
+            background: linear-gradient(135deg, #3776ab 0%, #ffd43b 100%);
+        }
+
+        .code-content {
+            padding: 1.5rem;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .pseudo-panel .code-content {
+            background: var(--pseudo-bg);
+            color: #fff;
+        }
+
+        .python-panel .code-content {
+            background: var(--python-bg);
+            color: #abb2bf;
+        }
+
+        .keyword { color: #c678dd; font-weight: bold; }
+        .string { color: #98c379; }
+        .number { color: #d19a66; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        .variable { color: #e5c07b; }
+        .builtin { color: #e06c75; }
+
+        .arrow-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .arrow {
+            font-size: 3rem;
+            color: var(--secondary);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        .transformation-note {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border: 2px solid var(--warning);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .transformation-note::before {
+            content: '🔄 TRANSFORMACIÓN';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: white;
+            padding: 0 10px;
+            color: var(--warning);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .equivalence-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .equivalence-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .equivalence-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #ecf0f1;
+            font-family: 'Consolas', monospace;
+        }
+
+        .equivalence-table tr:hover {
+            background: #f8f9fa;
+            transform: scale(1.01);
+            transition: all 0.3s ease;
+        }
+
+        .equivalence-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .optimization-box {
+            background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+            border: 2px solid var(--success);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .optimization-box::before {
+            content: '⚡ OPTIMIZACIÓN';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: white;
+            padding: 0 10px;
+            color: var(--success);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border: 2px solid var(--danger);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .warning-box::before {
+            content: '⚠️ ADVERTENCIA';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: white;
+            padding: 0 10px;
+            color: var(--danger);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .exercise-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe0e0 100%);
+            border: 2px solid var(--danger);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .exercise-box::before {
+            content: '💻 EJERCICIOS DE TRADUCCIÓN';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: white;
+            padding: 0 10px;
+            color: var(--danger);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-left: 5px solid var(--info);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .tip-box::before {
+            content: '💡 TIP';
+            font-weight: bold;
+            color: var(--info);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .tabs {
+            margin: 2rem 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: -2px;
+        }
+
+        .tab-button {
+            padding: 0.8rem 1.5rem;
+            background: #ecf0f1;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .tab-button.active {
+            background: white;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .tab-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0 8px 8px 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--secondary), var(--info), var(--success));
+            width: 0%;
+            z-index: 2000;
+            transition: width 0.3s ease;
+        }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.5rem; }
+            h3 { font-size: 1.2rem; }
+            nav ul { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <div class="container">
+        <header>
+            <h1>🔄 De Pseudocódigo a Python: Integración Completa</h1>
+            <p class="subtitle">Notebook 3: Traducción, Comparación y Optimización</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="#intro">Introducción</a></li>
+                <li><a href="#mapeo">Mapeo de Conceptos</a></li>
+                <li><a href="#variables">Variables</a></li>
+                <li><a href="#control">Estructuras de Control</a></li>
+                <li><a href="#bucles">Bucles</a></li>
+                <li><a href="#arreglos">Arreglos</a></li>
+                <li><a href="#funciones">Funciones</a></li>
+                <li><a href="#casos">Casos Completos</a></li>
+                <li><a href="#optimizacion">Optimización</a></li>
+                <li><a href="#proyecto">Proyecto Final</a></li>
+            </ul>
+        </nav>
+
+        <div class="content">
+            <!-- MÓDULO I: INTRODUCCIÓN -->
+            <div class="module" id="intro">
+                <h2>🎯 Módulo I: Introducción a la Traducción</h2>
+                
+                <div class="theory-box">
+                    <h3>El Puente Entre el Pensamiento Algorítmico y Python</h3>
+                    <p>
+                        Este notebook es el puente definitivo entre el pensamiento algorítmico puro que aprendiste con pseudocódigo y la implementación práctica en Python. Después de dominar la lógica de programación en el Notebook 1 y los fundamentos de Python en el Notebook 2, ahora aprenderás a traducir sistemáticamente cualquier algoritmo de pseudocódigo a Python, entendiendo no solo el "cómo" sino también el "por qué" de cada transformación.
+                    </p>
+                    <p>
+                        La traducción de pseudocódigo a Python no es una simple sustitución de palabras clave. Implica entender las diferencias filosóficas entre ambos enfoques: el pseudocódigo es explícito y verboso para máxima claridad, mientras que Python es conciso y expresivo para máxima productividad. Python ofrece estructuras de datos más poderosas, manejo automático de memoria, y una sintaxis que favorece la legibilidad. Aprenderás a aprovechar estas ventajas para crear código no solo funcional, sino elegante y eficiente.
+                    </p>
+                    <p>
+                        En el contexto minero, esta habilidad de traducción es invaluable. Muchos algoritmos críticos en minería están documentados en pseudocódigo en papers académicos, manuales técnicos, o especificaciones de sistemas. La capacidad de tomar estos algoritmos y implementarlos rápidamente en Python te permitirá automatizar procesos, validar teorías, y crear prototipos funcionales. Además, podrás colaborar efectivamente con ingenieros que piensan en pseudocódigo pero necesitan implementaciones en Python.
+                    </p>
+                </div>
+
+                <div class="theory-box">
+                    <h3>Diferencias Fundamentales Entre Pseudocódigo y Python</h3>
+                    <p>
+                        <strong>1. Declaración de Variables:</strong> En pseudocódigo, declaramos explícitamente el tipo de cada variable (Definir x Como Entero). Python usa tipado dinámico: el tipo se infiere del valor asignado (x = 10). Esto hace Python más flexible pero requiere disciplina para evitar errores de tipo.
+                    </p>
+                    <p>
+                        <strong>2. Delimitación de Bloques:</strong> El pseudocódigo usa palabras clave explícitas (FinSi, FinPara, FinMientras) para delimitar bloques. Python usa indentación, lo que resulta en código más limpio y visualmente estructurado, pero requiere consistencia absoluta en el uso de espacios o tabuladores.
+                    </p>
+                    <p>
+                        <strong>3. Operadores Lógicos:</strong> Pseudocódigo usa operadores en español (Y, O, NO) mientras Python usa palabras en inglés minúsculas (and, or, not). Los operadores relacionales también difieren: <> en pseudocódigo vs != en Python.
+                    </p>
+                    <p>
+                        <strong>4. Índices de Arrays:</strong> El pseudocódigo típicamente usa índices basados en 1 (el primer elemento es array[1]), mientras Python siempre usa índices basados en 0 (el primer elemento es array[0]). Esta diferencia es fuente común de errores al traducir.
+                    </p>
+                    <p>
+                        <strong>5. Estructuras de Datos:</strong> El pseudocódigo tiene arrays de tamaño fijo que se declaran con Dimension. Python ofrece listas dinámicas, diccionarios, sets, y tuplas, cada una optimizada para diferentes usos. Elegir la estructura correcta puede mejorar dramáticamente el rendimiento.
+                    </p>
+                </div>
+            </div>
+
+            <!-- MÓDULO II: MAPEO DE CONCEPTOS -->
+            <div class="module" id="mapeo">
+                <h2>🗺️ Módulo II: Tabla de Equivalencias Completa</h2>
+                
+                <div class="theory-box">
+                    <h3>Referencia Rápida de Traducción</h3>
+                    <p>
+                        Esta tabla de equivalencias es tu guía de referencia rápida para traducir cualquier elemento de pseudocódigo a Python. Memorizar estas equivalencias te permitirá traducir algoritmos de forma fluida y sin errores. Nota que algunas construcciones de pseudocódigo no tienen equivalente directo en Python y requieren soluciones alternativas.
+                    </p>
+                </div>
+
+                <table class="equivalence-table">
+                    <thead>
+                        <tr>
+                            <th>Categoría</th>
+                            <th>Pseudocódigo</th>
+                            <th>Python</th>
+                            <th>Notas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Inicio/Fin</strong></td>
+                            <td>Algoritmo NombreAlgoritmo<br>FinAlgoritmo</td>
+                            <td># No necesario<br># o usar if __name__ == "__main__":</td>
+                            <td>Python no requiere delimitadores de programa</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="5"><strong>Variables</strong></td>
+                            <td>Definir x Como Entero</td>
+                            <td>x = 0  # o simplemente no declarar</td>
+                            <td>Python infiere el tipo</td>
+                        </tr>
+                        <tr>
+                            <td>Definir y Como Real</td>
+                            <td>y = 0.0</td>
+                            <td>float se infiere del punto decimal</td>
+                        </tr>
+                        <tr>
+                            <td>Definir nombre Como Caracter</td>
+                            <td>nombre = ""</td>
+                            <td>strings con comillas simples o dobles</td>
+                        </tr>
+                        <tr>
+                            <td>Definir flag Como Logico</td>
+                            <td>flag = False</td>
+                            <td>True/False con mayúscula inicial</td>
+                        </tr>
+                        <tr>
+                            <td>Dimension arr[10]</td>
+                            <td>arr = [0] * 10  # o arr = []</td>
+                            <td>Listas dinámicas en Python</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2"><strong>Entrada/Salida</strong></td>
+                            <td>Leer variable</td>
+                            <td>variable = input()</td>
+                            <td>input() siempre retorna string</td>
+                        </tr>
+                        <tr>
+                            <td>Escribir "texto", variable</td>
+                            <td>print("texto", variable)</td>
+                            <td>print() acepta múltiples argumentos</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="6"><strong>Operadores</strong></td>
+                            <td>Y</td>
+                            <td>and</td>
+                            <td>Minúsculas en Python</td>
+                        </tr>
+                        <tr>
+                            <td>O</td>
+                            <td>or</td>
+                            <td>Minúsculas en Python</td>
+                        </tr>
+                        <tr>
+                            <td>NO</td>
+                            <td>not</td>
+                            <td>Minúsculas en Python</td>
+                        </tr>
+                        <tr>
+                            <td><></td>
+                            <td>!=</td>
+                            <td>Diferente en Python</td>
+                        </tr>
+                        <tr>
+                            <td>MOD</td>
+                            <td>%</td>
+                            <td>Operador módulo</td>
+                        </tr>
+                        <tr>
+                            <td>^</td>
+                            <td>**</td>
+                            <td>Potenciación en Python</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3"><strong>Condicionales</strong></td>
+                            <td>Si...Entonces<br>FinSi</td>
+                            <td>if...:<br>(indentación)</td>
+                            <td>: obligatorio, indentación define bloque</td>
+                        </tr>
+                        <tr>
+                            <td>Sino</td>
+                            <td>else:</td>
+                            <td>: obligatorio</td>
+                        </tr>
+                        <tr>
+                            <td>Sino Si</td>
+                            <td>elif:</td>
+                            <td>Contracción de else if</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3"><strong>Bucles</strong></td>
+                            <td>Para i←1 Hasta 10<br>FinPara</td>
+                            <td>for i in range(1, 11):<br>(indentación)</td>
+                            <td>range(1, 11) genera 1 a 10</td>
+                        </tr>
+                        <tr>
+                            <td>Mientras...Hacer<br>FinMientras</td>
+                            <td>while...:<br>(indentación)</td>
+                            <td>Condición al inicio</td>
+                        </tr>
+                        <tr>
+                            <td>Repetir...Hasta Que</td>
+                            <td>while True:<br>    ...<br>    if condicion: break</td>
+                            <td>No hay do-while en Python</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Funciones</strong></td>
+                            <td>SubProceso nombre(params)<br>FinSubProceso</td>
+                            <td>def nombre(params):<br>    return valor</td>
+                            <td>return explícito en Python</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Comentarios</strong></td>
+                            <td>// comentario</td>
+                            <td># comentario</td>
+                            <td># para una línea, ''' ''' para múltiples</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warning-box">
+                    <p>
+                        <strong>Cuidado con los índices:</strong> La diferencia más crítica es que Python usa índices basados en 0. Si tu pseudocódigo dice array[1] para el primer elemento, en Python será array[0]. Los bucles Para i←1 Hasta N en pseudocódigo se traducen a for i in range(N) en Python si queremos N iteraciones, o range(1, N+1) si necesitamos los valores 1 a N.
+                    </p>
+                </div>
+            </div>
+
+            <!-- MÓDULO III: VARIABLES Y TIPOS -->
+            <div class="module" id="variables">
+                <h2>💾 Módulo III: Traducción de Variables y Tipos de Datos</h2>
+                
+                <div class="theory-box">
+                    <h3>De Declaración Explícita a Tipado Dinámico</h3>
+                    <p>
+                        La traducción de variables es donde más se nota la diferencia filosófica entre pseudocódigo y Python. El pseudocódigo requiere declaración explícita del tipo para cada variable, lo que ayuda a documentar la intención y prevenir errores de tipo. Python, con su tipado dinámico, infiere el tipo del valor asignado, lo que resulta en código más conciso pero requiere mayor cuidado del programador.
+                    </p>
+                    <p>
+                        En sistemas mineros críticos, donde un error de tipo podría causar cálculos incorrectos de explosivos o factores de seguridad, es importante mantener la disciplina de tipos aunque Python no lo requiera. Una práctica recomendada es usar comentarios de tipo o type hints en Python para documentar los tipos esperados.
+                    </p>
+                </div>
+
+                <div class="comparison-container">
+                    <div class="code-panel pseudo-panel">
+                        <div class="panel-header">📝 PSEUDOCÓDIGO</div>
+                        <div class="code-content">
+<span class="keyword">Algoritmo</span> GestionVariablesMineras
+    <span class="comment">// Declaración de variables con tipos explícitos</span>
+    <span class="keyword">Definir</span> <span class="variable">numero_trabajadores</span> <span class="keyword">Como Entero</span>
+    <span class="keyword">Definir</span> <span class="variable">ley_cobre</span> <span class="keyword">Como Real</span>
+    <span class="keyword">Definir</span> <span class="variable">nombre_mina</span> <span class="keyword">Como Caracter</span>
+    <span class="keyword">Definir</span> <span class="variable">mina_activa</span> <span class="keyword">Como Logico</span>
+    
+    <span class="comment">// Arrays con tamaño fijo</span>
+    <span class="keyword">Dimension</span> <span class="variable">produccion_diaria</span>[7]
+    <span class="keyword">Dimension</span> <span class="variable">temperaturas</span>[5, 10]
+    
+    <span class="comment">// Asignación de valores</span>
+    <span class="variable">numero_trabajadores</span> ← <span class="number">250</span>
+    <span class="variable">ley_cobre</span> ← <span class="number">0.87</span>
+    <span class="variable">nombre_mina</span> ← <span class="string">"El Teniente"</span>
+    <span class="variable">mina_activa</span> ← <span class="keyword">Verdadero</span>
+    
+    <span class="comment">// Llenar array</span>
+    <span class="keyword">Para</span> i ← <span class="number">1</span> <span class="keyword">Hasta</span> <span class="number">7</span> <span class="keyword">Hacer</span>
+        <span class="variable">produccion_diaria</span>[i] ← <span class="number">45000</span> + i * <span class="number">1000</span>
+    <span class="keyword">FinPara</span>
+    
+    <span class="comment">// Conversión de tipos</span>
+    <span class="keyword">Definir</span> <span class="variable">texto_numero</span> <span class="keyword">Como Caracter</span>
+    <span class="keyword">Definir</span> <span class="variable">numero_convertido</span> <span class="keyword">Como Entero</span>
+    
+    <span class="variable">texto_numero</span> ← <span class="string">"123"</span>
+    <span class="variable">numero_convertido</span> ← ConvertirANumero(<span class="variable">texto_numero</span>)
+<span class="keyword">FinAlgoritmo</span>
+                        </div>
+                    </div>
+                    
+                    <div class="code-panel python-panel">
+                        <div class="panel-header">🐍 PYTHON</div>
+                        <div class="code-content">
+<span class="comment"># No necesitamos declarar tipos explícitamente</span>
+<span class="comment"># Python infiere el tipo del valor asignado</span>
+
+<span class="comment"># Variables simples - tipo inferido</span>
+<span class="variable">numero_trabajadores</span> = <span class="number">250</span>        <span class="comment"># int</span>
+<span class="variable">ley_cobre</span> = <span class="number">0.87</span>                 <span class="comment"># float</span>
+<span class="variable">nombre_mina</span> = <span class="string">"El Teniente"</span>      <span class="comment"># str</span>
+<span class="variable">mina_activa</span> = <span class="keyword">True</span>               <span class="comment"># bool</span>
+
+<span class="comment"># Listas dinámicas (no necesitan tamaño fijo)</span>
+<span class="variable">produccion_diaria</span> = []           <span class="comment"># Lista vacía</span>
+<span class="comment"># O inicializar con tamaño</span>
+<span class="variable">produccion_diaria</span> = [<span class="number">0</span>] * <span class="number">7</span>      <span class="comment"># Lista con 7 ceros</span>
+
+<span class="comment"># Matriz (lista de listas)</span>
+<span class="variable">temperaturas</span> = [[<span class="number">0</span>] * <span class="number">10</span> <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">5</span>)]
+
+<span class="comment"># Llenar lista (nota: índices desde 0)</span>
+<span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">7</span>):  <span class="comment"># 0 a 6</span>
+    <span class="variable">produccion_diaria</span>[<span class="variable">i</span>] = <span class="number">45000</span> + (<span class="variable">i</span> + <span class="number">1</span>) * <span class="number">1000</span>
+
+<span class="comment"># O más pythónico con list comprehension</span>
+<span class="variable">produccion_diaria</span> = [<span class="number">45000</span> + <span class="variable">i</span> * <span class="number">1000</span> <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">1</span>, <span class="number">8</span>)]
+
+<span class="comment"># Conversión de tipos explícita</span>
+<span class="variable">texto_numero</span> = <span class="string">"123"</span>
+<span class="variable">numero_convertido</span> = <span class="builtin">int</span>(<span class="variable">texto_numero</span>)
+
+<span class="comment"># Type hints opcionales (Python 3.5+)</span>
+<span class="keyword">from</span> typing <span class="keyword">import</span> List
+
+<span class="variable">trabajadores</span>: <span class="builtin">int</span> = <span class="number">250</span>
+<span class="variable">produccion</span>: List[<span class="builtin">float</span>] = []
+                        </div>
+                    </div>
+                </div>
+
+                <div class="transformation-note">
+                    <p>
+                        <strong>Puntos clave de la transformación:</strong>
+                    </p>
+                    <ul style="padding-left: 2rem;">
+                        <li>No necesitas "Definir" en Python - simplemente asigna el valor</li>
+                        <li>Los tipos se infieren automáticamente del valor asignado</li>
+                        <li>True/False en Python vs Verdadero/Falso en pseudocódigo</li>
+                        <li>Las listas en Python son dinámicas - pueden crecer o reducirse</li>
+                        <li>Los índices en Python comienzan en 0, no en 1</li>
+                        <li>Python ofrece list comprehensions para crear listas de forma más elegante</li>
+                    </ul>
+                </div>
+
+                <div class="exercise-box">
+                    <h3>Ejercicios - Variables y Tipos</h3>
+                    <ol style="padding-left: 2rem;">
+                        <li>
+                            <strong>Ejercicio 3.1:</strong> Traduce el siguiente pseudocódigo a Python:
+                            <pre style="background: #f8f9fa; padding: 1rem; margin: 0.5rem 0;">
+Definir equipos[10] Como Caracter
+Definir horas_operacion[10] Como Real
+Definir mantenimiento_requerido[10] Como Logico
+
+Para i ← 1 Hasta 10 Hacer
+    equipos[i] ← "CAM-" + ConvertirATexto(i)
+    horas_operacion[i] ← 100.5 * i
+    Si horas_operacion[i] > 500 Entonces
+        mantenimiento_requerido[i] ← Verdadero
+    Sino
+        mantenimiento_requerido[i] ← Falso
+    FinSi
+FinPara
+                            </pre>
+                        </li>
+                        <li>
+                            <strong>Ejercicio 3.2:</strong> Crea una tabla de equivalencias para los tipos de datos específicos de minería (coordenadas, fechas, códigos de equipo) mostrando la mejor representación en Python.
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- MÓDULO IV: ESTRUCTURAS DE CONTROL -->
+            <div class="module" id="control">
+                <h2>🔀 Módulo IV: Traducción de Estructuras Condicionales</h2>
+                
+                <div class="theory-box">
+                    <h3>De Bloques Explícitos a Indentación</h3>
+                    <p>
+                        La traducción de estructuras condicionales revela una de las características más distintivas de Python: el uso de indentación para definir bloques de código. Mientras el pseudocódigo usa palabras clave explícitas (FinSi, FinSino), Python confía en la indentación consistente. Esto resulta en código más limpio visualmente, pero requiere disciplina absoluta en el espaciado.
+                    </p>
+                    <p>
+                        Los dos puntos (:) al final de las líneas if, elif, y else son obligatorios en Python y señalan el inicio de un bloque indentado. Olvidar estos dos puntos es uno de los errores más comunes al traducir de pseudocódigo. La indentación estándar es de 4 espacios, aunque Python acepta cualquier cantidad consistente.
+                    </p>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab-buttons">
+                        <button class="tab-button active" onclick="showTab('simple')">IF Simple</button>
+                        <button class="tab-button" onclick="showTab('ifelse')">IF-ELSE</button>
+                        <button class="tab-button" onclick="showTab('multiple')">IF Múltiple</button>
+                        <button class="tab-button" onclick="showTab('anidado')">IF Anidado</button>
+                    </div>
+                    
+                    <div class="tab-content active" id="simple">
+                        <h3>Condicional Simple</h3>
+                        <div class="comparison-container">
+                            <div class="code-panel pseudo-panel">
+                                <div class="panel-header">PSEUDOCÓDIGO</div>
+                                <div class="code-content">
+<span class="keyword">Si</span> <span class="variable">temperatura</span> > <span class="number">30</span> <span class="keyword">Entonces</span>
+    <span class="keyword">Escribir</span> <span class="string">"Activar ventilación"</span>
+    <span class="variable">ventilacion_activa</span> ← <span class="keyword">Verdadero</span>
+    <span class="variable">nivel_ventilacion</span> ← <span class="number">100</span>
+<span class="keyword">FinSi</span>
+                                </div>
+                            </div>
+                            <div class="code-panel python-panel">
+                                <div class="panel-header">PYTHON</div>
+                                <div class="code-content">
+<span class="keyword">if</span> <span class="variable">temperatura</span> > <span class="number">30</span>:
+    <span class="builtin">print</span>(<span class="string">"Activar ventilación"</span>)
+    <span class="variable">ventilacion_activa</span> = <span class="keyword">True</span>
+    <span class="variable">nivel_ventilacion</span> = <span class="number">100</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="ifelse">
+                        <h3>Condicional con ELSE</h3>
+                        <div class="comparison-container">
+                            <div class="code-panel pseudo-panel">
+                                <div class="panel-header">PSEUDOCÓDIGO</div>
+                                <div class="code-content">
+<span class="keyword">Si</span> <span class="variable">ley_mineral</span> >= <span class="variable">cut_off</span> <span class="keyword">Entonces</span>
+    <span class="variable">destino</span> ← <span class="string">"Planta procesamiento"</span>
+    <span class="variable">valor</span> ← <span class="variable">tonelaje</span> * <span class="variable">ley_mineral</span> * <span class="variable">precio</span>
+<span class="keyword">Sino</span>
+    <span class="variable">destino</span> ← <span class="string">"Botadero"</span>
+    <span class="variable">valor</span> ← <span class="number">0</span>
+<span class="keyword">FinSi</span>
+                                </div>
+                            </div>
+                            <div class="code-panel python-panel">
+                                <div class="panel-header">PYTHON</div>
+                                <div class="code-content">
+<span class="keyword">if</span> <span class="variable">ley_mineral</span> >= <span class="variable">cut_off</span>:
+    <span class="variable">destino</span> = <span class="string">"Planta procesamiento"</span>
+    <span class="variable">valor</span> = <span class="variable">tonelaje</span> * <span class="variable">ley_mineral</span> * <span class="variable">precio</span>
+<span class="keyword">else</span>:
+    <span class="variable">destino</span> = <span class="string">"Botadero"</span>
+    <span class="variable">valor</span> = <span class="number">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="multiple">
+                        <h3>Condicional Múltiple</h3>
+                        <div class="comparison-container">
+                            <div class="code-panel pseudo-panel">
+                                <div class="panel-header">PSEUDOCÓDIGO</div>
+                                <div class="code-content">
+<span class="keyword">Si</span> <span class="variable">rmr</span> >= <span class="number">80</span> <span class="keyword">Entonces</span>
+    <span class="variable">calidad_roca</span> ← <span class="string">"Muy buena"</span>
+    <span class="variable">sostenimiento</span> ← <span class="string">"No requiere"</span>
+<span class="keyword">Sino Si</span> <span class="variable">rmr</span> >= <span class="number">60</span> <span class="keyword">Entonces</span>
+    <span class="variable">calidad_roca</span> ← <span class="string">"Buena"</span>
+    <span class="variable">sostenimiento</span> ← <span class="string">"Pernos ocasionales"</span>
+<span class="keyword">Sino Si</span> <span class="variable">rmr</span> >= <span class="number">40</span> <span class="keyword">Entonces</span>
+    <span class="variable">calidad_roca</span> ← <span class="string">"Regular"</span>
+    <span class="variable">sostenimiento</span> ← <span class="string">"Pernos sistemáticos"</span>
+<span class="keyword">Sino Si</span> <span class="variable">rmr</span> >= <span class="number">20</span> <span class="keyword">Entonces</span>
+    <span class="variable">calidad_roca</span> ← <span class="string">"Mala"</span>
+    <span class="variable">sostenimiento</span> ← <span class="string">"Cimbras + shotcrete"</span>
+<span class="keyword">Sino</span>
+    <span class="variable">calidad_roca</span> ← <span class="string">"Muy mala"</span>
+    <span class="variable">sostenimiento</span> ← <span class="string">"Cimbras pesadas"</span>
+<span class="keyword">FinSi</span>
+                                </div>
+                            </div>
+                            <div class="code-panel python-panel">
+                                <div class="panel-header">PYTHON</div>
+                                <div class="code-content">
+<span class="keyword">if</span> <span class="variable">rmr</span> >= <span class="number">80</span>:
+    <span class="variable">calidad_roca</span> = <span class="string">"Muy buena"</span>
+    <span class="variable">sostenimiento</span> = <span class="string">"No requiere"</span>
+<span class="keyword">elif</span> <span class="variable">rmr</span> >= <span class="number">60</span>:
+    <span class="variable">calidad_roca</span> = <span class="string">"Buena"</span>
+    <span class="variable">sostenimiento</span> = <span class="string">"Pernos ocasionales"</span>
+<span class="keyword">elif</span> <span class="variable">rmr</span> >= <span class="number">40</span>:
+    <span class="variable">calidad_roca</span> = <span class="string">"Regular"</span>
+    <span class="variable">sostenimiento</span> = <span class="string">"Pernos sistemáticos"</span>
+<span class="keyword">elif</span> <span class="variable">rmr</span> >= <span class="number">20</span>:
+    <span class="variable">calidad_roca</span> = <span class="string">"Mala"</span>
+    <span class="variable">sostenimiento</span> = <span class="string">"Cimbras + shotcrete"</span>
+<span class="keyword">else</span>:
+    <span class="variable">calidad_roca</span> = <span class="string">"Muy mala"</span>
+    <span class="variable">sostenimiento</span> = <span class="string">"Cimbras pesadas"</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="anidado">
+                        <h3>Condicionales Anidados</h3>
+                        <div class="comparison-container">
+                            <div class="code-panel pseudo-panel">
+                                <div class="panel-header">PSEUDOCÓDIGO</div>
+                                <div class="code-content">
+<span class="keyword">Si</span> <span class="variable">tipo_mineral</span> = <span class="string">"Cobre"</span> <span class="keyword">Entonces</span>
+    <span class="keyword">Si</span> <span class="variable">ley</span> >= <span class="number">1.0</span> <span class="keyword">Entonces</span>
+        <span class="keyword">Si</span> <span class="variable">arsenico</span> < <span class="number">500</span> <span class="keyword">Entonces</span>
+            <span class="variable">clasificacion</span> ← <span class="string">"Premium"</span>
+        <span class="keyword">Sino</span>
+            <span class="variable">clasificacion</span> ← <span class="string">"Estándar"</span>
+        <span class="keyword">FinSi</span>
+    <span class="keyword">Sino</span>
+        <span class="keyword">Si</span> <span class="variable">ley</span> >= <span class="number">0.5</span> <span class="keyword">Entonces</span>
+            <span class="variable">clasificacion</span> ← <span class="string">"Baja ley"</span>
+        <span class="keyword">Sino</span>
+            <span class="variable">clasificacion</span> ← <span class="string">"Marginal"</span>
+        <span class="keyword">FinSi</span>
+    <span class="keyword">FinSi</span>
+<span class="keyword">Sino</span>
+    <span class="variable">clasificacion</span> ← <span class="string">"Otro mineral"</span>
+<span class="keyword">FinSi</span>
+                                </div>
+                            </div>
+                            <div class="code-panel python-panel">
+                                <div class="panel-header">PYTHON</div>
+                                <div class="code-content">
+<span class="keyword">if</span> <span class="variable">tipo_mineral</span> == <span class="string">"Cobre"</span>:
+    <span class="keyword">if</span> <span class="variable">ley</span> >= <span class="number">1.0</span>:
+        <span class="keyword">if</span> <span class="variable">arsenico</span> < <span class="number">500</span>:
+            <span class="variable">clasificacion</span> = <span class="string">"Premium"</span>
+        <span class="keyword">else</span>:
+            <span class="variable">clasificacion</span> = <span class="string">"Estándar"</span>
+    <span class="keyword">else</span>:
+        <span class="keyword">if</span> <span class="variable">ley</span> >= <span class="number">0.5</span>:
+            <span class="variable">clasificacion</span> = <span class="string">"Baja ley"</span>
+        <span class="keyword">else</span>:
+            <span class="variable">clasificacion</span> = <span class="string">"Marginal"</span>
+<span class="keyword">else</span>:
+    <span class="variable">clasificacion</span> = <span class="string">"Otro mineral"</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="optimization-box">
+                    <p>
+                        <strong>Optimización Python:</strong> Python ofrece el operador ternario para condicionales simples:
+                    </p>
+                    <pre style="background: #1e272e; color: #abb2bf; padding: 1rem; border-radius: 8px;">
+<span class="comment"># En lugar de:</span>
+<span class="keyword">if</span> <span class="variable">ley</span> >= <span class="variable">cut_off</span>:
+    <span class="variable">destino</span> = <span class="string">"Planta"</span>
+<span class="keyword">else</span>:
+    <span class="variable">destino</span> = <span class="string">"Botadero"</span>
+
+<span class="comment"># Puedes usar:</span>
+<span class="variable">destino</span> = <span class="string">"Planta"</span> <span class="keyword">if</span> <span class="variable">ley</span> >= <span class="variable">cut_off</span> <span class="keyword">else</span> <span class="string">"Botadero"</span>
+                    </pre>
+                </div>
+            </div>
+
+            <!-- MÓDULO V: BUCLES -->
+            <div class="module" id="bucles">
+                <h2>🔄 Módulo V: Traducción de Estructuras Repetitivas</h2>
+                
+                <div class="theory-box">
+                    <h3>El Desafío de los Índices y range()</h3>
+                    <p>
+                        La traducción de bucles es donde más errores ocurren debido a la diferencia en índices. El pseudocódigo típicamente usa índices basados en 1 (Para i←1 Hasta 10), mientras Python usa índices basados en 0. La función range() de Python es poderosa pero puede confundir: range(10) genera 0-9, range(1, 11) genera 1-10, y range(1, 11, 2) genera 1, 3, 5, 7, 9.
+                    </p>
+                    <p>
+                        Python no tiene una estructura REPETIR-HASTA (do-while) nativa. La solución estándar es usar while True con una condición de salida break. Esto garantiza al menos una ejecución del bucle, comportamiento esencial en algoritmos de minería donde necesitamos al menos una medición o intento.
+                    </p>
+                </div>
+
+                <div class="comparison-container">
+                    <div class="code-panel pseudo-panel">
+                        <div class="panel-header">📝 PSEUDOCÓDIGO - Bucles</div>
+                        <div class="code-content">
+<span class="comment">// BUCLE PARA</span>
+<span class="keyword">Para</span> <span class="variable">i</span> ← <span class="number">1</span> <span class="keyword">Hasta</span> <span class="number">10</span> <span class="keyword">Hacer</span>
+    <span class="variable">produccion</span>[<span class="variable">i</span>] ← <span class="variable">i</span> * <span class="number">1000</span>
+    <span class="keyword">Escribir</span> <span class="string">"Día "</span>, <span class="variable">i</span>, <span class="string">": "</span>, <span class="variable">produccion</span>[<span class="variable">i</span>]
+<span class="keyword">FinPara</span>
+
+<span class="comment">// BUCLE MIENTRAS</span>
+<span class="variable">nivel_agua</span> ← <span class="number">5.0</span>
+<span class="keyword">Mientras</span> <span class="variable">nivel_agua</span> > <span class="number">0.5</span> <span class="keyword">Hacer</span>
+    <span class="variable">nivel_agua</span> ← <span class="variable">nivel_agua</span> - <span class="number">0.1</span>
+    <span class="keyword">Escribir</span> <span class="string">"Drenando... Nivel: "</span>, <span class="variable">nivel_agua</span>
+<span class="keyword">FinMientras</span>
+
+<span class="comment">// BUCLE REPETIR-HASTA</span>
+<span class="variable">intentos</span> ← <span class="number">0</span>
+<span class="keyword">Repetir</span>
+    <span class="variable">intentos</span> ← <span class="variable">intentos</span> + <span class="number">1</span>
+    <span class="keyword">Escribir</span> <span class="string">"Intento de conexión #"</span>, <span class="variable">intentos</span>
+    <span class="variable">conexion_exitosa</span> ← IntentarConexion()
+<span class="keyword">Hasta Que</span> <span class="variable">conexion_exitosa</span> = <span class="keyword">Verdadero</span> <span class="keyword">O</span> <span class="variable">intentos</span> >= <span class="number">5</span>
+
+<span class="comment">// BUCLES ANIDADOS</span>
+<span class="keyword">Para</span> <span class="variable">nivel</span> ← <span class="number">1</span> <span class="keyword">Hasta</span> <span class="number">3</span> <span class="keyword">Hacer</span>
+    <span class="keyword">Para</span> <span class="variable">sensor</span> ← <span class="number">1</span> <span class="keyword">Hasta</span> <span class="number">5</span> <span class="keyword">Hacer</span>
+        <span class="variable">temperatura</span>[<span class="variable">nivel</span>, <span class="variable">sensor</span>] ← LeerSensor(<span class="variable">nivel</span>, <span class="variable">sensor</span>)
+    <span class="keyword">FinPara</span>
+<span class="keyword">FinPara</span>
+                        </div>
+                    </div>
+                    
+                    <div class="code-panel python-panel">
+                        <div class="panel-header">🐍 PYTHON - Bucles</div>
+                        <div class="code-content">
+<span class="comment"># BUCLE FOR con range</span>
+<span class="comment"># Opción 1: Ajustar índices (0-9)</span>
+<span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">10</span>):  <span class="comment"># 0 a 9</span>
+    <span class="variable">produccion</span>[<span class="variable">i</span>] = (<span class="variable">i</span> + <span class="number">1</span>) * <span class="number">1000</span>
+    <span class="builtin">print</span>(<span class="string">f"Día {<span class="variable">i</span> + <span class="number">1</span>}: {<span class="variable">produccion</span>[<span class="variable">i</span>]}"</span>)
+
+<span class="comment"># Opción 2: Mantener índices 1-10</span>
+<span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">1</span>, <span class="number">11</span>):  <span class="comment"># 1 a 10</span>
+    <span class="variable">produccion</span>[<span class="variable">i</span> - <span class="number">1</span>] = <span class="variable">i</span> * <span class="number">1000</span>
+    <span class="builtin">print</span>(<span class="string">f"Día {<span class="variable">i</span>}: {<span class="variable">produccion</span>[<span class="variable">i</span> - <span class="number">1</span>]}"</span>)
+
+<span class="comment"># BUCLE WHILE</span>
+<span class="variable">nivel_agua</span> = <span class="number">5.0</span>
+<span class="keyword">while</span> <span class="variable">nivel_agua</span> > <span class="number">0.5</span>:
+    <span class="variable">nivel_agua</span> -= <span class="number">0.1</span>
+    <span class="builtin">print</span>(<span class="string">f"Drenando... Nivel: {<span class="variable">nivel_agua</span>:.1f}"</span>)
+
+<span class="comment"># BUCLE DO-WHILE (simulado)</span>
+<span class="variable">intentos</span> = <span class="number">0</span>
+<span class="keyword">while</span> <span class="keyword">True</span>:  <span class="comment"># Garantiza al menos una ejecución</span>
+    <span class="variable">intentos</span> += <span class="number">1</span>
+    <span class="builtin">print</span>(<span class="string">f"Intento de conexión #{<span class="variable">intentos</span>}"</span>)
+    <span class="variable">conexion_exitosa</span> = intentar_conexion()
+    
+    <span class="keyword">if</span> <span class="variable">conexion_exitosa</span> <span class="keyword">or</span> <span class="variable">intentos</span> >= <span class="number">5</span>:
+        <span class="keyword">break</span>
+
+<span class="comment"># BUCLES ANIDADOS</span>
+<span class="keyword">for</span> <span class="variable">nivel</span> <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">3</span>):  <span class="comment"># 0, 1, 2</span>
+    <span class="keyword">for</span> <span class="variable">sensor</span> <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">5</span>):  <span class="comment"># 0, 1, 2, 3, 4</span>
+        <span class="variable">temperatura</span>[<span class="variable">nivel</span>][<span class="variable">sensor</span>] = leer_sensor(<span class="variable">nivel</span> + <span class="number">1</span>, <span class="variable">sensor</span> + <span class="number">1</span>)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <p>
+                        <strong>Regla práctica para range():</strong>
+                    </p>
+                    <ul style="padding-left: 2rem;">
+                        <li>Para N iteraciones: <code>range(N)</code> → genera 0 a N-1</li>
+                        <li>Para valores de A a B: <code>range(A, B+1)</code> → genera A a B</li>
+                        <li>Con paso P: <code>range(inicio, fin, P)</code></li>
+                        <li>Para índices descendentes: <code>range(10, 0, -1)</code> → 10 a 1</li>
+                    </ul>
+                </div>
+
+                <div class="optimization-box">
+                    <p>
+                        <strong>Python idiomático:</strong> Usa enumerate() cuando necesites índice y valor:
+                    </p>
+                    <pre style="background: #1e272e; color: #abb2bf; padding: 1rem; border-radius: 8px;">
+<span class="comment"># En lugar de:</span>
+<span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="builtin">range</span>(<span class="builtin">len</span>(<span class="variable">produccion</span>)):
+    <span class="builtin">print</span>(<span class="string">f"Día {<span class="variable">i</span>}: {<span class="variable">produccion</span>[<span class="variable">i</span>]}"</span>)
+
+<span class="comment"># Usa:</span>
+<span class="keyword">for</span> <span class="variable">i</span>, <span class="variable">valor</span> <span class="keyword">in</span> <span class="builtin">enumerate</span>(<span class="variable">produccion</span>, <span class="number">1</span>):  <span class="comment"># Empieza en 1</span>
+    <span class="builtin">print</span>(<span class="string">f"Día {<span class="variable">i</span>}: {<span class="variable">valor</span>}"</span>)
+                    </pre>
+                </div>
+            </div>
+
+            <!-- MÓDULO VI: ARREGLOS Y LISTAS -->
+            <div class="module" id="arreglos">
+                <h2>📊 Módulo VI: De Arrays Estáticos a Listas Dinámicas</h2>
+                
+                <div class="theory-box">
+                    <h3>La Revolución de las Estructuras de Datos en Python</h3>
+                    <p>
+                        La traducción de arrays de pseudocódigo a Python revela una diferencia fundamental: mientras el pseudocódigo usa arrays de tamaño fijo declarados con Dimension, Python ofrece listas dinámicas que pueden crecer o reducirse durante la ejecución. Esta flexibilidad es revolucionaria para aplicaciones mineras donde el número de muestras, equipos o mediciones puede variar.
+                    </p>
+                    <p>
+                        Python también ofrece estructuras de datos adicionales no disponibles en pseudocódigo básico: diccionarios para mapeos clave-valor (perfectos para bases de datos de equipos), sets para elementos únicos (ideal para listas de trabajadores sin duplicados), y tuplas para datos inmutables (coordenadas GPS que no deben cambiar). Elegir la estructura correcta puede mejorar dramáticamente tanto el rendimiento como la claridad del código.
+                    </p>
+                </div>
+
+                <div class="comparison-container">
+                    <div class="code-panel pseudo-panel">
+                        <div class="panel-header">📝 ARRAYS EN PSEUDOCÓDIGO</div>
+                        <div class="code-content">
+<span class="comment">// Declaración de arrays</span>
+<span class="keyword">Dimension</span> <span class="variable">produccion</span>[30]
+<span class="keyword">Dimension</span> <span class="variable">temperaturas</span>[5, 10]
+<span class="keyword">Dimension</span> <span class="variable">leyes</span>[100]
+
+<span class="comment">// Llenar array unidimensional</span>
+<span class="keyword">Para</span> <span class="variable">i</span> ← <span class="number">1</span> <span class="keyword">Hasta</span> <span class="number">30</span> <span class="keyword">Hacer</span>
+    <span class="variable">produccion</span>[<span class="variable">i</span>] ← <span class="number">45000</span> + Random() * <span class="number">5000</span>
+<span class="keyword">FinPara</span>
+
+<span class="comment">// Calcular promedio</span>
+<span class="variable">suma</span> ← <span class="number">0</span>
+<span class="keyword">Para</span> <span class="variable">i</span> ← <span class="number">1</span> <span class="keyword">Hasta</span> <span class="number">30</span> <span class="keyword">Hacer</span>
+    <span class="variable">suma</span> ← <span class="variable">suma</span> + <span class="variable">produccion</span>[<span class="variable">i</span>]
+<span class="keyword">FinPara</span>
+<span class="variable">promedio</span> ← <span class="variable">suma</span> / <span class="number">30</span>
+
+<span class="comment">// Buscar máximo</span>
+<span class="variable">maximo</span> ← <span class="variable">produccion</span>[<span class="number">1</span>]
+<span class="variable">dia_maximo</span> ← <span class="number">1</span>
+<span class="keyword">Para</span> <span class="variable">i</span> ← <span class="number">2</span> <span class="keyword">Hasta</span> <span class="number">30</span> <span class="keyword">Hacer</span>
+    <span class="keyword">Si</span> <span class="variable">produccion</span>[<span class="variable">i</span>] > <span class="variable">maximo</span> <span class="keyword">Entonces</span>
+        <span class="variable">maximo</span> ← <span class="variable">produccion</span>[<span class="variable">i</span>]
+        <span class="variable">dia_maximo</span> ← <span class="variable">i</span>
+    <span class="keyword">FinSi</span>
+<span class="keyword">FinPara</span>
+
+<span class="comment">// Matriz bidimensional</span>
+<span class="keyword">Para</span> <span class="variable">nivel</span> ← <span class="number">1</span> <span class="keyword">Hasta</span> <span class="number">5</span> <span class="keyword">Hacer</span>
+    <span class="keyword">Para</span> <span class="variable">sensor</span> ← <span class="number">1</span> <span class="keyword">Hasta</span> <span class="number">10</span> <span class="keyword">Hacer</span>
+        <span class="variable">temperaturas</span>[<span class="variable">nivel</span>, <span class="variable">sensor</span>] ← <span class="number">20</span> + Random() * <span class="number">15</span>
+    <span class="keyword">FinPara</span>
+<span class="keyword">FinPara</span>
+
+<span class="comment">// Ordenar array (burbuja)</span>
+<span class="keyword">Para</span> <span class="variable">i</span> ← <span class="number">1</span> <span class="keyword">Hasta</span> <span class="number">29</span> <span class="keyword">Hacer</span>
+    <span class="keyword">Para</span> <span class="variable">j</span> ← <span class="number">1</span> <span class="keyword">Hasta</span> <span class="number">30</span> - <span class="variable">i</span> <span class="keyword">Hacer</span>
+        <span class="keyword">Si</span> <span class="variable">produccion</span>[<span class="variable">j</span>] > <span class="variable">produccion</span>[<span class="variable">j</span> + <span class="number">1</span>] <span class="keyword">Entonces</span>
+            <span class="variable">temp</span> ← <span class="variable">produccion</span>[<span class="variable">j</span>]
+            <span class="variable">produccion</span>[<span class="variable">j</span>] ← <span class="variable">produccion</span>[<span class="variable">j</span> + <span class="number">1</span>]
+            <span class="variable">produccion</span>[<span class="variable">j</span> + <span class="number">1</span>] ← <span class="variable">temp</span>
+        <span class="keyword">FinSi</span>
+    <span class="keyword">FinPara</span>
+<span class="keyword">FinPara</span>
+                        </div>
+                    </div>
+                    
+                    <div class="code-panel python-panel">
+                        <div class="panel-header">🐍 LISTAS EN PYTHON</div>
+                        <div class="code-content">
+<span class="keyword">import</span> random
+
+<span class="comment"># Listas dinámicas (no necesitan tamaño fijo)</span>
+<span class="variable">produccion</span> = []  <span class="comment"># Lista vacía</span>
+<span class="variable">temperaturas</span> = []  <span class="comment"># Se llenará como matriz</span>
+<span class="variable">leyes</span> = []
+
+<span class="comment"># Llenar lista - Opción 1: append</span>
+<span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">30</span>):
+    <span class="variable">produccion</span>.append(<span class="number">45000</span> + random.random() * <span class="number">5000</span>)
+
+<span class="comment"># Opción 2: List comprehension (más pythónico)</span>
+<span class="variable">produccion</span> = [<span class="number">45000</span> + random.random() * <span class="number">5000</span> 
+               <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">30</span>)]
+
+<span class="comment"># Calcular promedio - Forma pythónica</span>
+<span class="variable">promedio</span> = <span class="builtin">sum</span>(<span class="variable">produccion</span>) / <span class="builtin">len</span>(<span class="variable">produccion</span>)
+
+<span class="comment"># También: usando statistics</span>
+<span class="keyword">import</span> statistics
+<span class="variable">promedio</span> = statistics.mean(<span class="variable">produccion</span>)
+
+<span class="comment"># Buscar máximo - Forma pythónica</span>
+<span class="variable">maximo</span> = <span class="builtin">max</span>(<span class="variable">produccion</span>)
+<span class="variable">dia_maximo</span> = <span class="variable">produccion</span>.index(<span class="variable">maximo</span>) + <span class="number">1</span>  <span class="comment"># +1 para día 1-based</span>
+
+<span class="comment"># O con enumerate para obtener índice y valor</span>
+<span class="variable">dia_maximo</span>, <span class="variable">maximo</span> = <span class="builtin">max</span>(<span class="builtin">enumerate</span>(<span class="variable">produccion</span>, <span class="number">1</span>), 
+                             key=<span class="keyword">lambda</span> x: x[<span class="number">1</span>])
+
+<span class="comment"># Matriz como lista de listas</span>
+<span class="variable">temperaturas</span> = [[<span class="number">20</span> + random.random() * <span class="number">15</span> 
+                  <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">10</span>)] 
+                 <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">5</span>)]
+
+<span class="comment"># Ordenar - Python tiene sort() incorporado</span>
+<span class="variable">produccion</span>.sort()  <span class="comment"># Modifica la lista original</span>
+<span class="comment"># O crear nueva lista ordenada</span>
+<span class="variable">produccion_ordenada</span> = <span class="builtin">sorted</span>(<span class="variable">produccion</span>)
+
+<span class="comment"># Métodos útiles de listas no disponibles en pseudocódigo</span>
+<span class="variable">produccion</span>.append(<span class="number">50000</span>)  <span class="comment"># Agregar al final</span>
+<span class="variable">produccion</span>.insert(<span class="number">0</span>, <span class="number">40000</span>)  <span class="comment"># Insertar en posición</span>
+<span class="variable">produccion</span>.remove(<span class="number">45000</span>)  <span class="comment"># Eliminar primera ocurrencia</span>
+<span class="variable">ultimo</span> = <span class="variable">produccion</span>.pop()  <span class="comment"># Eliminar y retornar último</span>
+<span class="variable">produccion</span>.reverse()  <span class="comment"># Invertir orden</span>
+<span class="variable">cuenta</span> = <span class="variable">produccion</span>.count(<span class="number">45000</span>)  <span class="comment"># Contar ocurrencias</span>
+
+<span class="comment"># Slicing - característica poderosa de Python</span>
+<span class="variable">primeros_10</span> = <span class="variable">produccion</span>[:<span class="number">10</span>]  <span class="comment"># Primeros 10 elementos</span>
+<span class="variable">ultimos_5</span> = <span class="variable">produccion</span>[-<span class="number">5</span>:]  <span class="comment"># Últimos 5 elementos</span>
+<span class="variable">cada_segundo</span> = <span class="variable">produccion</span>[::<span class="number">2</span>]  <span class="comment"># Elementos en posiciones pares</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="optimization-box">
+                    <p>
+                        <strong>Estructuras de datos adicionales en Python:</strong>
+                    </p>
+                    <pre style="background: #1e272e; color: #abb2bf; padding: 1rem; border-radius: 8px;">
+<span class="comment"># DICCIONARIOS - para mapeos clave-valor</span>
+<span class="variable">equipo</span> = {
+    <span class="string">'codigo'</span>: <span class="string">'CAT-797F-001'</span>,
+    <span class="string">'horas'</span>: <span class="number">12500</span>,
+    <span class="string">'estado'</span>: <span class="string">'Operativo'</span>
+}
+
+<span class="comment"># SETS - para elementos únicos</span>
+<span class="variable">trabajadores_turno_a</span> = {<span class="string">'Juan'</span>, <span class="string">'María'</span>, <span class="string">'Pedro'</span>}
+<span class="variable">trabajadores_turno_b</span> = {<span class="string">'María'</span>, <span class="string">'Ana'</span>, <span class="string">'Luis'</span>}
+<span class="variable">todos</span> = <span class="variable">trabajadores_turno_a</span> | <span class="variable">trabajadores_turno_b</span>  <span class="comment"># Unión</span>
+
+<span class="comment"># TUPLAS - para datos inmutables</span>
+<span class="variable">coordenadas</span> = (<span class="number">-70.123456</span>, <span class="number">-23.456789</span>, <span class="number">4500</span>)  <span class="comment"># lat, lon, altitud</span>
+
+<span class="comment"># NUMPY ARRAYS - para cálculos numéricos eficientes</span>
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="variable">produccion_np</span> = np.array(<span class="variable">produccion</span>)
+<span class="variable">promedio_np</span> = <span class="variable">produccion_np</span>.mean()
+<span class="variable">desviacion</span> = <span class="variable">produccion_np</span>.std()
+                    </pre>
+                </div>
+            </div>
+
+            <!-- MÓDULO VII: FUNCIONES -->
+            <div class="module" id="funciones">
+                <h2>⚡ Módulo VII: Traducción de Subprocesos a Funciones</h2>
+                
+                <div class="theory-box">
+                    <h3>De SubProceso a def: Modularización en Python</h3>
+                    <p>
+                        La traducción de subprocesos a funciones Python revela diferencias importantes en el manejo de parámetros y valores de retorno. Mientras el pseudocódigo puede modificar parámetros pasados por referencia, Python pasa objetos inmutables (números, strings) por valor y objetos mutables (listas, diccionarios) por referencia al objeto. Esta distinción es crítica en algoritmos mineros que modifican grandes estructuras de datos.
+                    </p>
+                    <p>
+                        Python ofrece características avanzadas no disponibles en pseudocódigo básico: valores por defecto en parámetros, número variable de argumentos (*args, **kwargs), funciones lambda para operaciones simples, y decoradores para modificar comportamiento de funciones. Estas herramientas permiten crear APIs más flexibles y código más reutilizable.
+                    </p>
+                </div>
+
+                <div class="comparison-container">
+                    <div class="code-panel pseudo-panel">
+                        <div class="panel-header">📝 SUBPROCESOS</div>
+                        <div class="code-content">
+<span class="comment">// Función simple con retorno</span>
+<span class="keyword">SubProceso</span> <span class="variable">ley_ponderada</span> ← CalcularLeyPonderada(<span class="variable">tonelajes</span>, <span class="variable">leyes</span>, <span class="variable">n</span>)
+    <span class="keyword">Definir</span> <span class="variable">suma_ponderada</span>, <span class="variable">suma_tonelajes</span> <span class="keyword">Como Real</span>
+    <span class="variable">suma_ponderada</span> ← <span class="number">0</span>
+    <span class="variable">suma_tonelajes</span> ← <span class="number">0</span>
+    
+    <span class="keyword">Para</span> <span class="variable">i</span> ← <span class="number">1</span> <span class="keyword">Hasta</span> <span class="variable">n</span> <span class="keyword">Hacer</span>
+        <span class="variable">suma_ponderada</span> ← <span class="variable">suma_ponderada</span> + <span class="variable">tonelajes</span>[<span class="variable">i</span>] * <span class="variable">leyes</span>[<span class="variable">i</span>]
+        <span class="variable">suma_tonelajes</span> ← <span class="variable">suma_tonelajes</span> + <span class="variable">tonelajes</span>[<span class="variable">i</span>]
+    <span class="keyword">FinPara</span>
+    
+    <span class="keyword">Si</span> <span class="variable">suma_tonelajes</span> > <span class="number">0</span> <span class="keyword">Entonces</span>
+        <span class="variable">ley_ponderada</span> ← <span class="variable">suma_ponderada</span> / <span class="variable">suma_tonelajes</span>
+    <span class="keyword">Sino</span>
+        <span class="variable">ley_ponderada</span> ← <span class="number">0</span>
+    <span class="keyword">FinSi</span>
+<span class="keyword">FinSubProceso</span>
+
+<span class="comment">// Procedimiento sin retorno (modifica array)</span>
+<span class="keyword">SubProceso</span> OrdenarProduccion(<span class="variable">produccion</span>, <span class="variable">n</span>)
+    <span class="keyword">Definir</span> <span class="variable">temp</span> <span class="keyword">Como Real</span>
+    <span class="keyword">Para</span> <span class="variable">i</span> ← <span class="number">1</span> <span class="keyword">Hasta</span> <span class="variable">n</span> - <span class="number">1</span> <span class="keyword">Hacer</span>
+        <span class="keyword">Para</span> <span class="variable">j</span> ← <span class="number">1</span> <span class="keyword">Hasta</span> <span class="variable">n</span> - <span class="variable">i</span> <span class="keyword">Hacer</span>
+            <span class="keyword">Si</span> <span class="variable">produccion</span>[<span class="variable">j</span>] > <span class="variable">produccion</span>[<span class="variable">j</span> + <span class="number">1</span>] <span class="keyword">Entonces</span>
+                <span class="variable">temp</span> ← <span class="variable">produccion</span>[<span class="variable">j</span>]
+                <span class="variable">produccion</span>[<span class="variable">j</span>] ← <span class="variable">produccion</span>[<span class="variable">j</span> + <span class="number">1</span>]
+                <span class="variable">produccion</span>[<span class="variable">j</span> + <span class="number">1</span>] ← <span class="variable">temp</span>
+            <span class="keyword">FinSi</span>
+        <span class="keyword">FinPara</span>
+    <span class="keyword">FinPara</span>
+<span class="keyword">FinSubProceso</span>
+
+<span class="comment">// Función con múltiples retornos (simulado)</span>
+<span class="keyword">SubProceso</span> AnalisisEstadistico(<span class="variable">datos</span>, <span class="variable">n</span>, <span class="variable">min</span> <span class="keyword">Por Referencia</span>, <span class="variable">max</span> <span class="keyword">Por Referencia</span>, <span class="variable">prom</span> <span class="keyword">Por Referencia</span>)
+    <span class="variable">min</span> ← <span class="variable">datos</span>[<span class="number">1</span>]
+    <span class="variable">max</span> ← <span class="variable">datos</span>[<span class="number">1</span>]
+    <span class="keyword">Definir</span> <span class="variable">suma</span> <span class="keyword">Como Real</span>
+    <span class="variable">suma</span> ← <span class="number">0</span>
+    
+    <span class="keyword">Para</span> <span class="variable">i</span> ← <span class="number">1</span> <span class="keyword">Hasta</span> <span class="variable">n</span> <span class="keyword">Hacer</span>
+        <span class="variable">suma</span> ← <span class="variable">suma</span> + <span class="variable">datos</span>[<span class="variable">i</span>]
+        <span class="keyword">Si</span> <span class="variable">datos</span>[<span class="variable">i</span>] < <span class="variable">min</span> <span class="keyword">Entonces</span> <span class="variable">min</span> ← <span class="variable">datos</span>[<span class="variable">i</span>] <span class="keyword">FinSi</span>
+        <span class="keyword">Si</span> <span class="variable">datos</span>[<span class="variable">i</span>] > <span class="variable">max</span> <span class="keyword">Entonces</span> <span class="variable">max</span> ← <span class="variable">datos</span>[<span class="variable">i</span>] <span class="keyword">FinSi</span>
+    <span class="keyword">FinPara</span>
+    
+    <span class="variable">prom</span> ← <span class="variable">suma</span> / <span class="variable">n</span>
+<span class="keyword">FinSubProceso</span>
+                        </div>
+                    </div>
+                    
+                    <div class="code-panel python-panel">
+                        <div class="panel-header">🐍 FUNCIONES PYTHON</div>
+                        <div class="code-content">
+<span class="comment"># Función con retorno simple</span>
+<span class="keyword">def</span> <span class="function">calcular_ley_ponderada</span>(<span class="variable">tonelajes</span>, <span class="variable">leyes</span>):
+    <span class="string">"""Calcula la ley ponderada por tonelaje"""</span>
+    <span class="keyword">if</span> <span class="builtin">len</span>(<span class="variable">tonelajes</span>) != <span class="builtin">len</span>(<span class="variable">leyes</span>):
+        <span class="keyword">raise</span> ValueError(<span class="string">"Las listas deben tener igual longitud"</span>)
+    
+    <span class="variable">suma_ponderada</span> = <span class="builtin">sum</span>(<span class="variable">t</span> * <span class="variable">l</span> <span class="keyword">for</span> <span class="variable">t</span>, <span class="variable">l</span> <span class="keyword">in</span> <span class="builtin">zip</span>(<span class="variable">tonelajes</span>, <span class="variable">leyes</span>))
+    <span class="variable">suma_tonelajes</span> = <span class="builtin">sum</span>(<span class="variable">tonelajes</span>)
+    
+    <span class="keyword">if</span> <span class="variable">suma_tonelajes</span> > <span class="number">0</span>:
+        <span class="keyword">return</span> <span class="variable">suma_ponderada</span> / <span class="variable">suma_tonelajes</span>
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> <span class="number">0</span>
+
+<span class="comment"># Python: las listas se pasan por referencia al objeto</span>
+<span class="comment"># Esta función modifica la lista original</span>
+<span class="keyword">def</span> <span class="function">ordenar_produccion</span>(<span class="variable">produccion</span>):
+    <span class="string">"""Ordena la lista in-place (modifica original)"""</span>
+    <span class="variable">produccion</span>.sort()  <span class="comment"># Más eficiente que burbuja</span>
+    <span class="comment"># No necesita return, modifica la lista original</span>
+
+<span class="comment"># Para no modificar el original</span>
+<span class="keyword">def</span> <span class="function">ordenar_produccion_copia</span>(<span class="variable">produccion</span>):
+    <span class="string">"""Retorna una copia ordenada"""</span>
+    <span class="keyword">return</span> <span class="builtin">sorted</span>(<span class="variable">produccion</span>)
+
+<span class="comment"># Función con múltiples retornos (nativo en Python)</span>
+<span class="keyword">def</span> <span class="function">analisis_estadistico</span>(<span class="variable">datos</span>):
+    <span class="string">"""Retorna min, max y promedio"""</span>
+    <span class="keyword">if</span> <span class="keyword">not</span> <span class="variable">datos</span>:
+        <span class="keyword">return</span> <span class="keyword">None</span>, <span class="keyword">None</span>, <span class="keyword">None</span>
+    
+    <span class="variable">minimo</span> = <span class="builtin">min</span>(<span class="variable">datos</span>)
+    <span class="variable">maximo</span> = <span class="builtin">max</span>(<span class="variable">datos</span>)
+    <span class="variable">promedio</span> = <span class="builtin">sum</span>(<span class="variable">datos</span>) / <span class="builtin">len</span>(<span class="variable">datos</span>)
+    
+    <span class="keyword">return</span> <span class="variable">minimo</span>, <span class="variable">maximo</span>, <span class="variable">promedio</span>
+
+<span class="comment"># Uso de múltiples retornos</span>
+<span class="variable">min_val</span>, <span class="variable">max_val</span>, <span class="variable">prom</span> = <span class="function">analisis_estadistico</span>(<span class="variable">produccion</span>)
+
+<span class="comment"># Características avanzadas de Python</span>
+
+<span class="comment"># 1. Valores por defecto</span>
+<span class="keyword">def</span> <span class="function">calcular_voladura</span>(<span class="variable">barrenos</span>, <span class="variable">prof_prom</span>=<span class="number">3.0</span>, <span class="variable">factor_carga</span>=<span class="number">0.3</span>):
+    <span class="variable">volumen</span> = <span class="variable">barrenos</span> * <span class="variable">prof_prom</span> * <span class="number">0.0707</span>  <span class="comment"># área barreno 3"</span>
+    <span class="variable">explosivo</span> = <span class="variable">volumen</span> * <span class="number">2650</span> * <span class="variable">factor_carga</span>  <span class="comment"># densidad roca</span>
+    <span class="keyword">return</span> <span class="variable">explosivo</span>
+
+<span class="comment"># 2. *args y **kwargs</span>
+<span class="keyword">def</span> <span class="function">registrar_produccion</span>(<span class="variable">fecha</span>, *<span class="variable">tonelajes</span>, **<span class="variable">detalles</span>):
+    <span class="variable">total</span> = <span class="builtin">sum</span>(<span class="variable">tonelajes</span>)
+    <span class="builtin">print</span>(<span class="string">f"Fecha: {<span class="variable">fecha</span>}, Total: {<span class="variable">total</span>}"</span>)
+    <span class="keyword">for</span> <span class="variable">clave</span>, <span class="variable">valor</span> <span class="keyword">in</span> <span class="variable">detalles</span>.items():
+        <span class="builtin">print</span>(<span class="string">f"  {<span class="variable">clave</span>}: {<span class="variable">valor</span>}"</span>)
+
+<span class="comment"># 3. Lambda (funciones anónimas)</span>
+<span class="variable">ley_equivalente</span> = <span class="keyword">lambda</span> <span class="variable">cu</span>, <span class="variable">au</span>: <span class="variable">cu</span> + <span class="variable">au</span> * <span class="number">0.6</span>
+<span class="variable">cut_off_dinamico</span> = <span class="keyword">lambda</span> <span class="variable">precio</span>: <span class="number">0.3</span> * (<span class="variable">precio</span> / <span class="number">6000</span>)
+
+<span class="comment"># 4. Decoradores (modifican comportamiento)</span>
+<span class="keyword">def</span> <span class="function">verificar_seguridad</span>(<span class="variable">func</span>):
+    <span class="keyword">def</span> <span class="function">wrapper</span>(*<span class="variable">args</span>, **<span class="variable">kwargs</span>):
+        <span class="builtin">print</span>(<span class="string">"Verificando condiciones de seguridad..."</span>)
+        <span class="keyword">if</span> condiciones_seguras():
+            <span class="keyword">return</span> <span class="variable">func</span>(*<span class="variable">args</span>, **<span class="variable">kwargs</span>)
+        <span class="keyword">else</span>:
+            <span class="builtin">print</span>(<span class="string">"Operación cancelada por seguridad"</span>)
+    <span class="keyword">return</span> <span class="variable">wrapper</span>
+
+<span class="variable">@verificar_seguridad</span>
+<span class="keyword">def</span> <span class="function">iniciar_voladura</span>():
+    <span class="builtin">print</span>(<span class="string">"Voladura iniciada"</span>)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="transformation-note">
+                    <p>
+                        <strong>Diferencias clave en el paso de parámetros:</strong>
+                    </p>
+                    <ul style="padding-left: 2rem;">
+                        <li><strong>Inmutables (int, float, str, tuple):</strong> Se pasan por valor, cambios locales no afectan el original</li>
+                        <li><strong>Mutables (list, dict, set):</strong> Se pasa referencia al objeto, cambios afectan el original</li>
+                        <li>Para evitar modificar listas originales, usa <code>lista.copy()</code> o <code>lista[:]</code></li>
+                        <li>Python siempre requiere <code>return</code> explícito para devolver valores</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- MÓDULO VIII: CASOS COMPLETOS -->
+            <div class="module" id="casos">
+                <h2>🎯 Módulo VIII: Casos de Estudio Completos</h2>
+                
+                <div class="theory-box">
+                    <h3>Traducción de Algoritmos Mineros Reales</h3>
+                    <p>
+                        Ahora aplicaremos todo lo aprendido traduciendo algoritmos completos de gestión minera. Estos casos representan situaciones reales donde el pseudocódigo documenta la lógica del negocio, y Python implementa la solución funcional. Observa cómo Python no solo traduce, sino que mejora el código con sus características avanzadas.
+                    </p>
+                </div>
+
+                <h3>Caso 1: Sistema de Monitoreo de Temperatura</h3>
+                <div class="comparison-container">
+                    <div class="code-panel pseudo-panel">
+                        <div class="panel-header">PSEUDOCÓDIGO ORIGINAL</div>
+                        <div class="code-content">
+<span class="keyword">Algoritmo</span> MonitoreoTemperatura
+    <span class="keyword">Definir</span> <span class="variable">N_LABORES</span> <span class="keyword">Como Entero</span>
+    <span class="variable">N_LABORES</span> ← <span class="number">5</span>
+    <span class="keyword">Dimension</span> <span class="variable">temp</span>[<span class="variable">N_LABORES</span>]
+    <span class="keyword">Definir</span> <span class="variable">i</span>, <span class="variable">altas</span> <span class="keyword">Como Entero</span>
+    <span class="keyword">Definir</span> <span class="variable">promedioTemp</span> <span class="keyword">Como Real</span>
+    <span class="keyword">Definir</span> <span class="variable">sumaTemp</span> <span class="keyword">Como Real</span>
+    <span class="keyword">Definir</span> <span class="variable">mensaje</span> <span class="keyword">Como Caracter</span>
+    
+    <span class="comment">// DATOS DE ENTRADA</span>
+    <span class="variable">altas</span> ← <span class="number">0</span>
+    <span class="variable">sumaTemp</span> ← <span class="number">0</span>
+    
+    <span class="keyword">Para</span> <span class="variable">i</span> ← <span class="number">1</span> <span class="keyword">Hasta</span> <span class="variable">N_LABORES</span> <span class="keyword">Hacer</span>
+        <span class="keyword">Escribir</span> <span class="string">"Ingresa temperatura (°C) de labor "</span>, <span class="variable">i</span>, <span class="string">":"</span>
+        <span class="keyword">Leer</span> <span class="variable">temp</span>[<span class="variable">i</span>]
+        <span class="variable">sumaTemp</span> ← <span class="variable">sumaTemp</span> + <span class="variable">temp</span>[<span class="variable">i</span>]
+        
+        <span class="keyword">Si</span> <span class="variable">temp</span>[<span class="variable">i</span>] < <span class="number">20</span> <span class="keyword">Entonces</span>
+            <span class="keyword">Escribir</span> <span class="string">"Labor "</span>, <span class="variable">i</span>, <span class="string">": Temperatura baja"</span>
+        <span class="keyword">Sino</span>
+            <span class="keyword">Si</span> <span class="variable">temp</span>[<span class="variable">i</span>] < <span class="number">30</span> <span class="keyword">Entonces</span>
+                <span class="keyword">Escribir</span> <span class="string">"Labor "</span>, <span class="variable">i</span>, <span class="string">": Temperatura normal"</span>
+            <span class="keyword">Sino</span>
+                <span class="keyword">Escribir</span> <span class="string">"Labor "</span>, <span class="variable">i</span>, <span class="string">": Temperatura Alta!"</span>
+                <span class="variable">altas</span> ← <span class="variable">altas</span> + <span class="number">1</span>
+            <span class="keyword">FinSi</span>
+        <span class="keyword">FinSi</span>
+    <span class="keyword">FinPara</span>
+    
+    <span class="comment">// PROCESAMIENTO</span>
+    <span class="variable">promedioTemp</span> ← <span class="variable">sumaTemp</span> / <span class="variable">N_LABORES</span>
+    
+    <span class="keyword">Si</span> <span class="variable">promedioTemp</span> > <span class="number">30</span> <span class="keyword">Entonces</span>
+        <span class="variable">mensaje</span> ← <span class="string">"temperatura promedio alta"</span>
+    <span class="keyword">Sino</span>
+        <span class="variable">mensaje</span> ← <span class="string">"temperatura promedio normal"</span>
+    <span class="keyword">FinSi</span>
+    
+    <span class="comment">// DATOS DE SALIDA</span>
+    <span class="keyword">Escribir</span> <span class="string">"Promedio: "</span>, <span class="variable">promedioTemp</span>, <span class="string">" - "</span>, <span class="variable">mensaje</span>
+    
+    <span class="keyword">Si</span> <span class="variable">altas</span> >= <span class="number">3</span> <span class="keyword">Entonces</span>
+        <span class="keyword">Escribir</span> <span class="string">"⚠ Alerta: activar refuerzo ventilación"</span>
+    <span class="keyword">Sino</span>
+        <span class="keyword">Escribir</span> <span class="string">"Condiciones térmicas en parámetros"</span>
+    <span class="keyword">FinSi</span>
+<span class="keyword">FinAlgoritmo</span>
+                        </div>
+                    </div>
+                    
+                    <div class="code-panel python-panel">
+                        <div class="panel-header">PYTHON OPTIMIZADO</div>
+                        <div class="code-content">
+<span class="keyword">def</span> <span class="function">monitoreo_temperatura</span>(<span class="variable">n_labores</span>=<span class="number">5</span>):
+    <span class="string">"""
+    Sistema de monitoreo de temperatura en labores mineras.
+    Versión Python mejorada con validación y estructura de datos.
+    """</span>
+    <span class="comment"># Diccionario para almacenar datos completos</span>
+    <span class="variable">labores</span> = {}
+    <span class="variable">temperaturas</span> = []
+    <span class="variable">alertas</span> = []
+    
+    <span class="comment"># Constantes de configuración</span>
+    <span class="variable">TEMP_BAJA</span> = <span class="number">20</span>
+    <span class="variable">TEMP_ALTA</span> = <span class="number">30</span>
+    <span class="variable">LIMITE_ALERTAS</span> = <span class="number">3</span>
+    
+    <span class="comment"># Entrada de datos con validación</span>
+    <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">1</span>, <span class="variable">n_labores</span> + <span class="number">1</span>):
+        <span class="keyword">while</span> <span class="keyword">True</span>:
+            <span class="keyword">try</span>:
+                <span class="variable">temp</span> = <span class="builtin">float</span>(<span class="builtin">input</span>(<span class="string">f"Ingresa temperatura (°C) de labor {<span class="variable">i</span>}: "</span>))
+                <span class="keyword">if</span> <span class="number">-10</span> <= <span class="variable">temp</span> <= <span class="number">50</span>:  <span class="comment"># Validación de rango</span>
+                    <span class="keyword">break</span>
+                <span class="keyword">else</span>:
+                    <span class="builtin">print</span>(<span class="string">"Error: Temperatura fuera de rango (-10 a 50°C)"</span>)
+            <span class="keyword">except</span> ValueError:
+                <span class="builtin">print</span>(<span class="string">"Error: Ingrese un número válido"</span>)
+        
+        <span class="comment"># Clasificación de temperatura</span>
+        <span class="keyword">if</span> <span class="variable">temp</span> < <span class="variable">TEMP_BAJA</span>:
+            <span class="variable">estado</span> = <span class="string">"🔵 Baja"</span>
+            <span class="variable">color</span> = <span class="string">'\033[94m'</span>  <span class="comment"># Azul</span>
+        <span class="keyword">elif</span> <span class="variable">temp</span> < <span class="variable">TEMP_ALTA</span>:
+            <span class="variable">estado</span> = <span class="string">"🟢 Normal"</span>
+            <span class="variable">color</span> = <span class="string">'\033[92m'</span>  <span class="comment"># Verde</span>
+        <span class="keyword">else</span>:
+            <span class="variable">estado</span> = <span class="string">"🔴 Alta"</span>
+            <span class="variable">color</span> = <span class="string">'\033[91m'</span>  <span class="comment"># Rojo</span>
+            <span class="variable">alertas</span>.append(<span class="variable">i</span>)
+        
+        <span class="comment"># Almacenar datos estructurados</span>
+        <span class="variable">labores</span>[<span class="variable">i</span>] = {
+            <span class="string">'temperatura'</span>: <span class="variable">temp</span>,
+            <span class="string">'estado'</span>: <span class="variable">estado</span>,
+            <span class="string">'requiere_accion'</span>: <span class="variable">temp</span> >= <span class="variable">TEMP_ALTA</span>
+        }
+        <span class="variable">temperaturas</span>.append(<span class="variable">temp</span>)
+        
+        <span class="builtin">print</span>(<span class="string">f"{<span class="variable">color</span>}Labor {<span class="variable">i</span>}: {<span class="variable">temp</span>:.1f}°C - {<span class="variable">estado</span>}\033[0m"</span>)
+    
+    <span class="comment"># Análisis estadístico mejorado</span>
+    <span class="keyword">import</span> statistics
+    
+    <span class="variable">promedio</span> = statistics.mean(<span class="variable">temperaturas</span>)
+    <span class="variable">mediana</span> = statistics.median(<span class="variable">temperaturas</span>)
+    <span class="variable">desviacion</span> = statistics.stdev(<span class="variable">temperaturas</span>) <span class="keyword">if</span> <span class="builtin">len</span>(<span class="variable">temperaturas</span>) > <span class="number">1</span> <span class="keyword">else</span> <span class="number">0</span>
+    
+    <span class="comment"># Reporte detallado</span>
+    <span class="builtin">print</span>(<span class="string">"\n" + "="*50</span>)
+    <span class="builtin">print</span>(<span class="string">"📊 REPORTE DE ANÁLISIS TÉRMICO"</span>)
+    <span class="builtin">print</span>(<span class="string">"="*50</span>)
+    <span class="builtin">print</span>(<span class="string">f"Temperatura promedio: {<span class="variable">promedio</span>:.2f}°C"</span>)
+    <span class="builtin">print</span>(<span class="string">f"Temperatura mediana: {<span class="variable">mediana</span>:.2f}°C"</span>)
+    <span class="builtin">print</span>(<span class="string">f"Desviación estándar: {<span class="variable">desviacion</span>:.2f}°C"</span>)
+    <span class="builtin">print</span>(<span class="string">f"Temperatura máxima: {<span class="builtin">max</span>(<span class="variable">temperaturas</span>):.1f}°C (Labor {<span class="variable">temperaturas</span>.index(<span class="builtin">max</span>(<span class="variable">temperaturas</span>)) + <span class="number">1</span>})"</span>)
+    <span class="builtin">print</span>(<span class="string">f"Temperatura mínima: {<span class="builtin">min</span>(<span class="variable">temperaturas</span>):.1f}°C (Labor {<span class="variable">temperaturas</span>.index(<span class="builtin">min</span>(<span class="variable">temperaturas</span>)) + <span class="number">1</span>})"</span>)
+    
+    <span class="comment"># Sistema de alertas mejorado</span>
+    <span class="keyword">if</span> <span class="builtin">len</span>(<span class="variable">alertas</span>) >= <span class="variable">LIMITE_ALERTAS</span>:
+        <span class="builtin">print</span>(<span class="string">"\n🚨 ALERTA CRÍTICA: Activar refuerzo de ventilación"</span>)
+        <span class="builtin">print</span>(<span class="string">f"Labores afectadas: {', '.join(<span class="builtin">map</span>(<span class="builtin">str</span>, <span class="variable">alertas</span>))}"</span>)
+        <span class="variable">acciones</span> = [
+            <span class="string">"1. Activar ventiladores auxiliares"</span>,
+            <span class="string">"2. Reducir personal al mínimo"</span>,
+            <span class="string">"3. Monitoreo continuo cada 30 min"</span>,
+            <span class="string">"4. Preparar protocolo de evacuación"</span>
+        ]
+        <span class="builtin">print</span>(<span class="string">"\n📋 Plan de acción:"</span>)
+        <span class="keyword">for</span> <span class="variable">accion</span> <span class="keyword">in</span> <span class="variable">acciones</span>:
+            <span class="builtin">print</span>(<span class="string">f"   {<span class="variable">accion</span>}"</span>)
+    <span class="keyword">elif</span> <span class="variable">promedio</span> > <span class="variable">TEMP_ALTA</span>:
+        <span class="builtin">print</span>(<span class="string">"\n⚠️ PRECAUCIÓN: Temperatura promedio elevada"</span>)
+        <span class="builtin">print</span>(<span class="string">"Recomendación: Aumentar ventilación preventiva"</span>)
+    <span class="keyword">else</span>:
+        <span class="builtin">print</span>(<span class="string">"\n✅ Condiciones térmicas dentro de parámetros"</span>)
+    
+    <span class="keyword">return</span> <span class="variable">labores</span>
+
+<span class="comment"># Ejecución con manejo de excepciones</span>
+<span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:
+    <span class="keyword">try</span>:
+        <span class="variable">resultado</span> = <span class="function">monitoreo_temperatura</span>()
+    <span class="keyword">except</span> KeyboardInterrupt:
+        <span class="builtin">print</span>(<span class="string">"\n\nSistema interrumpido por usuario"</span>)
+    <span class="keyword">except</span> Exception <span class="keyword">as</span> <span class="variable">e</span>:
+        <span class="builtin">print</span>(<span class="string">f"Error del sistema: {<span class="variable">e</span>}"</span>)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="optimization-box">
+                    <p>
+                        <strong>Mejoras de la versión Python:</strong>
+                    </p>
+                    <ul style="padding-left: 2rem;">
+                        <li>✅ Validación robusta de entrada con manejo de excepciones</li>
+                        <li>✅ Estructura de datos rica (diccionario) para almacenar información completa</li>
+                        <li>✅ Análisis estadístico completo con la librería statistics</li>
+                        <li>✅ Interfaz mejorada con colores y emojis</li>
+                        <li>✅ Plan de acción detallado según el nivel de alerta</li>
+                        <li>✅ Código modular y reutilizable como función</li>
+                        <li>✅ Manejo de interrupciones del usuario</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- MÓDULO IX: OPTIMIZACIÓN -->
+            <div class="module" id="optimizacion">
+                <h2>⚡ Módulo IX: Optimización y Código Pythónico</h2>
+                
+                <div class="theory-box">
+                    <h3>Más Allá de la Traducción: Python Idiomático</h3>
+                    <p>
+                        La traducción literal de pseudocódigo a Python funciona, pero no aprovecha el poder del lenguaje. El código "pythónico" usa las características y convenciones únicas de Python para crear soluciones más elegantes, eficientes y mantenibles. En minería, donde procesamos grandes volúmenes de datos, estas optimizaciones pueden significar la diferencia entre esperar horas o minutos por resultados.
+                    </p>
+                </div>
+
+                <div class="transformation-note">
+                    <h3>Principios del Código Pythónico</h3>
+                    <table class="equivalence-table">
+                        <thead>
+                            <tr>
+                                <th>Enfoque Tradicional</th>
+                                <th>Enfoque Pythónico</th>
+                                <th>Ventaja</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Bucles para crear listas</td>
+                                <td>List comprehensions</td>
+                                <td>Más rápido y conciso</td>
+                            </tr>
+                            <tr>
+                                <td>Concatenación de strings en bucle</td>
+                                <td>join() o f-strings</td>
+                                <td>Mejor rendimiento</td>
+                            </tr>
+                            <tr>
+                                <td>Verificar si elemento en lista</td>
+                                <td>Usar sets para búsquedas</td>
+                                <td>O(1) vs O(n)</td>
+                            </tr>
+                            <tr>
+                                <td>Bucles para sumar/contar</td>
+                                <td>sum(), len(), any(), all()</td>
+                                <td>Funciones optimizadas en C</td>
+                            </tr>
+                            <tr>
+                                <td>try-except para flujo normal</td>
+                                <td>EAFP vs LBYL</td>
+                                <td>Más pythónico y eficiente</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="code-panel python-panel" style="width: 100%; max-width: 900px; margin: 2rem auto;">
+                    <div class="panel-header">🚀 EJEMPLOS DE OPTIMIZACIÓN PYTHÓNICA</div>
+                    <div class="code-content">
+<span class="comment"># ============= LIST COMPREHENSIONS vs BUCLES =============</span>
+
+<span class="comment"># ❌ Tradicional (traducción literal)</span>
+<span class="variable">leyes_altas</span> = []
+<span class="keyword">for</span> <span class="variable">muestra</span> <span class="keyword">in</span> <span class="variable">muestras</span>:
+    <span class="keyword">if</span> <span class="variable">muestra</span>[<span class="string">'ley'</span>] >= <span class="variable">cut_off</span>:
+        <span class="variable">leyes_altas</span>.append(<span class="variable">muestra</span>[<span class="string">'ley'</span>])
+
+<span class="comment"># ✅ Pythónico</span>
+<span class="variable">leyes_altas</span> = [<span class="variable">m</span>[<span class="string">'ley'</span>] <span class="keyword">for</span> <span class="variable">m</span> <span class="keyword">in</span> <span class="variable">muestras</span> <span class="keyword">if</span> <span class="variable">m</span>[<span class="string">'ley'</span>] >= <span class="variable">cut_off</span>]
+
+<span class="comment"># ============= GENERADORES PARA GRANDES DATASETS =============</span>
+
+<span class="comment"># ❌ Carga todo en memoria</span>
+<span class="keyword">def</span> <span class="function">procesar_produccion</span>(<span class="variable">archivo</span>):
+    <span class="variable">datos</span> = []
+    <span class="keyword">with</span> <span class="builtin">open</span>(<span class="variable">archivo</span>) <span class="keyword">as</span> <span class="variable">f</span>:
+        <span class="keyword">for</span> <span class="variable">linea</span> <span class="keyword">in</span> <span class="variable">f</span>:
+            <span class="variable">datos</span>.append(<span class="builtin">float</span>(<span class="variable">linea</span>))
+    <span class="keyword">return</span> <span class="variable">datos</span>
+
+<span class="comment"># ✅ Generador - memoria eficiente</span>
+<span class="keyword">def</span> <span class="function">procesar_produccion</span>(<span class="variable">archivo</span>):
+    <span class="keyword">with</span> <span class="builtin">open</span>(<span class="variable">archivo</span>) <span class="keyword">as</span> <span class="variable">f</span>:
+        <span class="keyword">for</span> <span class="variable">linea</span> <span class="keyword">in</span> <span class="variable">f</span>:
+            <span class="keyword">yield</span> <span class="builtin">float</span>(<span class="variable">linea</span>)
+
+<span class="comment"># ============= DICCIONARIOS Y DEFAULTDICT =============</span>
+
+<span class="comment"># ❌ Verificación manual</span>
+<span class="variable">produccion_por_zona</span> = {}
+<span class="keyword">for</span> <span class="variable">registro</span> <span class="keyword">in</span> <span class="variable">registros</span>:
+    <span class="keyword">if</span> <span class="variable">registro</span>[<span class="string">'zona'</span>] <span class="keyword">not in</span> <span class="variable">produccion_por_zona</span>:
+        <span class="variable">produccion_por_zona</span>[<span class="variable">registro</span>[<span class="string">'zona'</span>]] = []
+    <span class="variable">produccion_por_zona</span>[<span class="variable">registro</span>[<span class="string">'zona'</span>]].append(<span class="variable">registro</span>[<span class="string">'tonelaje'</span>])
+
+<span class="comment"># ✅ defaultdict</span>
+<span class="keyword">from</span> collections <span class="keyword">import</span> defaultdict
+<span class="variable">produccion_por_zona</span> = defaultdict(list)
+<span class="keyword">for</span> <span class="variable">registro</span> <span class="keyword">in</span> <span class="variable">registros</span>:
+    <span class="variable">produccion_por_zona</span>[<span class="variable">registro</span>[<span class="string">'zona'</span>]].append(<span class="variable">registro</span>[<span class="string">'tonelaje'</span>])
+
+<span class="comment"># ============= ENUMERATE vs RANGE(LEN()) =============</span>
+
+<span class="comment"># ❌ Índices manuales</span>
+<span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="builtin">range</span>(<span class="builtin">len</span>(<span class="variable">equipos</span>)):
+    <span class="builtin">print</span>(<span class="string">f"{<span class="variable">i</span> + <span class="number">1</span>}. {<span class="variable">equipos</span>[<span class="variable">i</span>]}"</span>)
+
+<span class="comment"># ✅ enumerate</span>
+<span class="keyword">for</span> <span class="variable">i</span>, <span class="variable">equipo</span> <span class="keyword">in</span> <span class="builtin">enumerate</span>(<span class="variable">equipos</span>, <span class="number">1</span>):
+    <span class="builtin">print</span>(<span class="string">f"{<span class="variable">i</span>}. {<span class="variable">equipo</span>}"</span>)
+
+<span class="comment"># ============= ZIP PARA MÚLTIPLES LISTAS =============</span>
+
+<span class="comment"># ❌ Índices compartidos</span>
+<span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="builtin">range</span>(<span class="builtin">len</span>(<span class="variable">tonelajes</span>)):
+    <span class="variable">valor</span> = <span class="variable">tonelajes</span>[<span class="variable">i</span>] * <span class="variable">leyes</span>[<span class="variable">i</span>] * <span class="variable">precios</span>[<span class="variable">i</span>]
+
+<span class="comment"># ✅ zip</span>
+<span class="keyword">for</span> <span class="variable">ton</span>, <span class="variable">ley</span>, <span class="variable">precio</span> <span class="keyword">in</span> <span class="builtin">zip</span>(<span class="variable">tonelajes</span>, <span class="variable">leyes</span>, <span class="variable">precios</span>):
+    <span class="variable">valor</span> = <span class="variable">ton</span> * <span class="variable">ley</span> * <span class="variable">precio</span>
+
+<span class="comment"># ============= CONTEXT MANAGERS (with) =============</span>
+
+<span class="comment"># ❌ Manejo manual de recursos</span>
+<span class="variable">archivo</span> = <span class="builtin">open</span>(<span class="string">'produccion.txt'</span>, <span class="string">'r'</span>)
+<span class="variable">datos</span> = <span class="variable">archivo</span>.read()
+<span class="variable">archivo</span>.close()
+
+<span class="comment"># ✅ Context manager</span>
+<span class="keyword">with</span> <span class="builtin">open</span>(<span class="string">'produccion.txt'</span>, <span class="string">'r'</span>) <span class="keyword">as</span> <span class="variable">archivo</span>:
+    <span class="variable">datos</span> = <span class="variable">archivo</span>.read()
+<span class="comment"># Archivo se cierra automáticamente</span>
+
+<span class="comment"># ============= F-STRINGS vs CONCATENACIÓN =============</span>
+
+<span class="comment"># ❌ Concatenación</span>
+<span class="variable">mensaje</span> = <span class="string">"Equipo: "</span> + <span class="variable">codigo</span> + <span class="string">" - Horas: "</span> + <span class="builtin">str</span>(<span class="variable">horas</span>) + <span class="string">" - Estado: "</span> + <span class="variable">estado</span>
+
+<span class="comment"># ✅ F-string</span>
+<span class="variable">mensaje</span> = <span class="string">f"Equipo: {<span class="variable">codigo</span>} - Horas: {<span class="variable">horas</span>} - Estado: {<span class="variable">estado</span>}"</span>
+
+<span class="comment"># ============= UNPACKING =============</span>
+
+<span class="comment"># ❌ Acceso por índice</span>
+<span class="variable">coordenadas</span> = (<span class="number">-70.123</span>, <span class="number">-23.456</span>, <span class="number">4500</span>)
+<span class="variable">lat</span> = <span class="variable">coordenadas</span>[<span class="number">0</span>]
+<span class="variable">lon</span> = <span class="variable">coordenadas</span>[<span class="number">1</span>]
+<span class="variable">alt</span> = <span class="variable">coordenadas</span>[<span class="number">2</span>]
+
+<span class="comment"># ✅ Unpacking</span>
+<span class="variable">lat</span>, <span class="variable">lon</span>, <span class="variable">alt</span> = <span class="variable">coordenadas</span>
+
+<span class="comment"># ============= OPERADOR TERNARIO =============</span>
+
+<span class="comment"># ❌ If-else verboso</span>
+<span class="keyword">if</span> <span class="variable">ley</span> >= <span class="variable">cut_off</span>:
+    <span class="variable">destino</span> = <span class="string">"Planta"</span>
+<span class="keyword">else</span>:
+    <span class="variable">destino</span> = <span class="string">"Botadero"</span>
+
+<span class="comment"># ✅ Operador ternario</span>
+<span class="variable">destino</span> = <span class="string">"Planta"</span> <span class="keyword">if</span> <span class="variable">ley</span> >= <span class="variable">cut_off</span> <span class="keyword">else</span> <span class="string">"Botadero"</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROYECTO FINAL -->
+            <div class="module" id="proyecto">
+                <h2>🎯 Proyecto Final: Sistema Completo de Traducción</h2>
+                
+                <div class="warning-box">
+                    <p>
+                        <strong>Desafío Final:</strong> Toma el sistema completo de gestión minera del Notebook 1 (en pseudocódigo) y tradúcelo a Python aplicando todas las optimizaciones aprendidas. El resultado debe ser un sistema funcional, eficiente y pythónico que demuestre tu dominio de ambos paradigmas.
+                    </p>
+                </div>
+
+                <div class="exercise-box">
+                    <h3>Proyecto: Traductor Automático de Pseudocódigo a Python</h3>
+                    <p><strong>Objetivo:</strong> Crear un programa en Python que pueda traducir automáticamente pseudocódigo simple a Python.</p>
+                    
+                    <h4>Requisitos del Proyecto:</h4>
+                    <ol style="padding-left: 2rem;">
+                        <li>
+                            <strong>Parser de Pseudocódigo:</strong>
+                            <ul style="padding-left: 2rem;">
+                                <li>Reconocer estructuras básicas (Si, Para, Mientras)</li>
+                                <li>Identificar declaraciones de variables</li>
+                                <li>Parsear expresiones aritméticas y lógicas</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Generador de Python:</strong>
+                            <ul style="padding-left: 2rem;">
+                                <li>Convertir estructuras de control</li>
+                                <li>Manejar indentación correctamente</li>
+                                <li>Traducir operadores y funciones</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Optimizador:</strong>
+                            <ul style="padding-left: 2rem;">
+                                <li>Detectar patrones optimizables</li>
+                                <li>Sugerir uso de list comprehensions</li>
+                                <li>Recomendar funciones built-in de Python</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Casos de Prueba:</strong>
+                            <ul style="padding-left: 2rem;">
+                                <li>Algoritmos de cálculo de producción</li>
+                                <li>Sistemas de monitoreo de seguridad</li>
+                                <li>Gestión de equipos y mantenimiento</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <h4>Entregables:</h4>
+                    <ul style="padding-left: 2rem; list-style-type: disc;">
+                        <li>Código fuente del traductor</li>
+                        <li>10 ejemplos de traducción exitosa</li>
+                        <li>Documentación de limitaciones y casos especiales</li>
+                        <li>Comparación de rendimiento entre versiones</li>
+                        <li>Manual de uso del traductor</li>
+                    </ul>
+
+                    <h4>Criterios de Evaluación:</h4>
+                    <ul style="padding-left: 2rem; list-style-type: disc;">
+                        <li>Correctitud de la traducción (40%)</li>
+                        <li>Calidad del código Python generado (30%)</li>
+                        <li>Manejo de casos especiales (20%)</li>
+                        <li>Documentación y pruebas (10%)</li>
+                    </ul>
+                </div>
+
+                <div class="theory-box">
+                    <h3>Conclusión y Siguientes Pasos</h3>
+                    <p>
+                        Has completado el viaje desde el pensamiento algorítmico puro hasta la implementación profesional en Python. Ahora puedes:
+                    </p>
+                    <ul style="padding-left: 2rem;">
+                        <li>✅ Traducir cualquier algoritmo de pseudocódigo a Python</li>
+                        <li>✅ Optimizar código para aprovechar las características de Python</li>
+                        <li>✅ Escribir código pythónico idiomático</li>
+                        <li>✅ Elegir las estructuras de datos apropiadas</li>
+                        <li>✅ Aplicar mejores prácticas de Python en sistemas mineros</li>
+                    </ul>
+                    <p>
+                        <strong>Próximo nivel:</strong> Con estas habilidades, estás listo para explorar librerías especializadas como NumPy, Pandas y Scikit-learn, fundamentales para el análisis de datos y Machine Learning en minería. El camino hacia la Minería 4.0 está abierto.
+                    </p>
+                </div>
+
+                <div class="tip-box">
+                    <p>
+                        <strong>Recursos para continuar aprendiendo:</strong>
+                    </p>
+                    <ul style="padding-left: 2rem;">
+                        <li>📚 "Effective Python" de Brett Slatkin - Mejores prácticas</li>
+                        <li>📚 "Python Tricks" de Dan Bader - Técnicas avanzadas</li>
+                        <li>🌐 Real Python - Tutoriales avanzados</li>
+                        <li>🌐 Python PEP 8 - Guía de estilo oficial</li>
+                        <li>🛠️ pylint, black - Herramientas de calidad de código</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Continuaré con más módulos... -->
+        </div>
+
+        <footer>
+            <p>© 2024 Curso de Minería 4.0 - Machine Learning y Deep Learning</p>
+            <p>Notebook 3: Integración - De Pseudocódigo a Python</p>
+        </footer>
+    </div>
+
+    <script>
+        // Función para tabs
+        function showTab(tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-button');
+            
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Barra de progreso
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
