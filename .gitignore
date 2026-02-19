@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
+*.pyc
+
+# Datos y modelos (depende tu caso)
+data/raw/
+data/processed/
+models/
